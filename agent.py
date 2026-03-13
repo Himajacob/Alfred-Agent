@@ -1,16 +1,13 @@
 from typing import TypedDict, Annotated
 from langgraph.graph.message import add_messages
-from langchain_core.messages import AnyMessage, HumanMessage, AIMessage
-from langgraph.prebuilt import ToolNode
+from langchain_core.messages import AnyMessage, SystemMessage
+from langgraph.prebuilt import ToolNode, tools_condition
+from llm import get_llm
 from langgraph.graph import START, StateGraph
-from langgraph.prebuilt import tools_condition
-from langchain_ollama import ChatOllama
+from retriever.retriever import guest_info_tool
 
-llm = ChatOllama(
-    model="llama3.2:3b",
-    temperature=0.7,
-)
 
+llm = get_llm()
 tools = [guest_info_tool]
 chat_with_tools = llm.bind_tools(tools)
 
@@ -18,20 +15,23 @@ class AgentState(TypedDict):
     messages: Annotated[list[AnyMessage],  add_messages]
 
 def assistant(state: AgentState):
+    system = SystemMessage(content="""
+    You are Alfred, a helpful butler at Wayne's manor. You help Mr.Wayne to run the hosehold. You speak in first person as Alfred himself.
+    Rules: 1.Check for tools and database before relying on world knowledge
+           2.Keep the conversation casual and polite""")
+    messages = [system] + state["messages"]
     return {
-        "messages": [chat_with_tools.invoke(state["messages"])],
+        "messages": [chat_with_tools.invoke(messages)],
     }
 
-builder = StateGraph(AgentState)
+def build_graph():
+    builder = StateGraph(AgentState)
 
-builder.add_node("assistant", assistant)
-builder.add_conditional_edges("assistant",tools_condition,)
-builder.add_edge("tools", "assistant")
+    builder.add_node("assistant", assistant)
+    builder.add_node("tools", ToolNode(tools))
 
-alfred = builder.compile()
+    builder.add_edge(START, "assistant")
+    builder.add_conditional_edges("assistant",tools_condition,)
+    builder.add_edge("tools", "assistant")
 
-messages = [HumanMessage(content="Tell me about our guest named 'Lady Ada Lovelace'.")]
-response = alfred.invoke({"messages": messages})
-
-print("🎩 Alfred's Response:")
-print(response['messages'][-1].content)
+    return builder.compile()
