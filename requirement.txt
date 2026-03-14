@@ -3,3 +3,5 @@ langchain
 langchain-community
 langgraph
 langchain-huggingface
+langchain-community pydantic
+pyowm

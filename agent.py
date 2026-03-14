@@ -5,12 +5,11 @@ from langgraph.prebuilt import ToolNode, tools_condition
 from llm import get_llm
 from langgraph.graph import START, StateGraph
 from retriever.retriever import guest_info_tool
-from agent_tools import web_search
-from langchain_community.tools import DuckDuckGoSearchRun
+from agent_tools import web_search, weather_search
 
 
 llm = get_llm()
-tools = [guest_info_tool,web_search]
+tools = [guest_info_tool,web_search, weather_search]
 chat_with_tools = llm.bind_tools(tools)
 
 class AgentState(TypedDict):
