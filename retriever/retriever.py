@@ -12,7 +12,6 @@ def guest_info_tool(query: str)->str:
     """Retrieves detailed information about gala guests based on their name """
 
     results = bm25_retriever.invoke(query)
-    #print("using the tool")
     if results:
         return "\n\n".join([doc.page_content for doc in results[:3]])
     else:
