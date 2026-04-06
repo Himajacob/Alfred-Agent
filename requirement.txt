@@ -5,3 +5,4 @@ langgraph
 langchain-huggingface
 langchain-community pydantic
 pyowm
+gradio
