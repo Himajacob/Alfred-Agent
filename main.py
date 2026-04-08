@@ -18,9 +18,11 @@ def chat(message, history):
 
     messages = []
 
-    for user, bot in history:
-        messages.append(HumanMessage(content=user))
-        messages.append(AIMessage(content=bot))
+    for msg in history:
+        if msg['role'] == 'user':
+            messages.append(HumanMessage(content=msg['content']))
+        elif msg['role'] == 'assistant':
+            messages.append(AIMessage(content=msg['content']))
 
     messages.append(HumanMessage(content=message))
     response = agent.invoke({"messages": messages})
