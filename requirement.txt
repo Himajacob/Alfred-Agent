@@ -6,3 +6,6 @@ langchain-huggingface
 langchain-community pydantic
 pyowm
 gradio
+langchain-ollama
+huggingface_hub
+python-dotenv
