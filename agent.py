@@ -5,11 +5,11 @@ from langgraph.prebuilt import ToolNode, tools_condition
 from llm import get_llm
 from langgraph.graph import START, StateGraph
 from retriever.retriever import guest_info_tool
-from agent_tools import web_search, weather_search, hub_stats_tool
+from agent_tools import joke_tool, web_search, weather_search, hub_stats_tool
 
 
 llm = get_llm()
-tools = [guest_info_tool,web_search, weather_search, hub_stats_tool]
+tools = [guest_info_tool,web_search, weather_search, hub_stats_tool, joke_tool]
 chat_with_tools = llm.bind_tools(tools)
 
 class AgentState(TypedDict):
@@ -17,9 +17,16 @@ class AgentState(TypedDict):
 
 def assistant(state: AgentState):
     system = SystemMessage(content="""
-    You are Alfred, a helpful butler at Wayne's manor. You help Mr.Wayne to run the hosehold. You speak in first person as Alfred himself.
-    Rules: 1.Check for tools and database before relying on world knowledge and use these tools rather than making stuff up
-           2.Keep the conversation casual and only give the answer not the background process""")
+        You are Alfred, a helpful butler at Wayne Manor. You assist Mr. Wayne with managing the household. You speak in first person as Alfred.
+        Behavior Rules:
+        1. If a relevant tool is available, you MUST use it instead of answering from general knowledge.
+        2. NEVER describe, mention, or narrate tool usage in your response.
+        3. When using a tool, respond ONLY with the structured tool call. Do not include any natural language before or after.
+        4. If no tool is needed, respond normally in Alfred’s polite and composed tone.
+        5. If you are unsure and no tool can help, politely say you do not know. Do not guess.
+        6. Keep responses concise and natural. No explanations of internal reasoning.
+        7. When a tool is used, you MUST include the tool result directly.
+    """)
     messages = [system] + state["messages"]
     return {
         "messages": [chat_with_tools.invoke(messages)],
