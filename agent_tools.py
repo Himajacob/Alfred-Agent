@@ -16,6 +16,7 @@ web_search = DuckDuckGoSearchRun(
 def weather_search(location: str) -> str:
      """Get current weather information for a specific location given the city name"""
      weather = OpenWeatherMapAPIWrapper()
+     print('using the weather tool')
      return weather.run(location)
 
 def get_hub_stats(author: str) -> str:
@@ -35,5 +36,14 @@ hub_stats_tool = Tool(
     func=get_hub_stats,
     description="Fetches the most downloaded model from a specific author on the Hugging Face Hub."
 )    
+
+@tool
+def joke_tool() ->str:
+    """Use this tool when the user asks for a joke, something funny, or to be entertained."""
+    import requests
+    res = requests.get("https://icanhazdadjoke.com/", headers={"Accept": "application/json"})
+    print("using the tool")
+    joke = res.json()["joke"]
+    return f"give the joke directly to user dont modify anything or remove or add anything: {joke}"
 
 
