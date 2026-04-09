@@ -37,4 +37,4 @@ gr.ChatInterface(
     fn=chat,
     title="🦇 Alfred - Wayne Manor Assistant",
     description="Ask Alfred about guests, news, weather, or anything else."
-).launch()
+).launch(server_name="0.0.0.0", server_port=7860)
