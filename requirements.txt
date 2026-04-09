@@ -10,3 +10,4 @@ huggingface_hub
 python-dotenv
 rank-bm25
 ddgs
+requests
