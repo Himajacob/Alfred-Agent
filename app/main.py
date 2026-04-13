@@ -3,19 +3,14 @@ from agent import build_graph
 from retriever.dataloaer import docs
 from retriever.retriever import initialize_retriever
 import gradio as gr
+from observability.langfuse_client import get_langfuse_handler
 
 
 initialize_retriever(docs)
 agent = build_graph()
+handler = get_langfuse_handler()
 
 def chat(message, history):
-    
-    # messages = [
-    #     HumanMessage(
-    #         content="can you give me the most downloaded model from hugging face hub by google "
-    #     )
-    # ]
-
     messages = []
 
     for msg in history:
@@ -25,10 +20,9 @@ def chat(message, history):
             messages.append(AIMessage(content=msg['content']))
 
     messages.append(HumanMessage(content=message))
-    response = agent.invoke({"messages": messages})
+    response = agent.invoke({"messages": messages},
+                            config={"callbacks":[handler]})
 
-    # print("Alfred's Response:")
-    # print(response["messages"][-1].content)
 
     reply = response["messages"][-1].content
     return reply
